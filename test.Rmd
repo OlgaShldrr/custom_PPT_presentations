@@ -1,0 +1,723 @@
+---
+title: ""
+params:
+  name: Athabasca University, Faculty of Business
+output: 
+  powerpoint_presentation:
+    reference_doc: !expr paste0(here::here(), '/template_slides.pptx')
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+#setwd(here::here())
+source(paste0(here::here(),"/prep.R"))
+require(gridExtra)
+library(gt)
+library(knitr)
+
+data_filtered <<- schools %>% 
+  filter(name == params$name) %>% 
+    as.data.frame()
+
+#accredited, control, country
+if (data_filtered$accred!="Not Accredited" & nrow(filter(country_table_accredited_control,country_table_accredited_control$country==data_filtered$country&country_table_accredited_control$class_Control==data_filtered$class_Control&country_table_accredited_control$n>=6))== 3) {
+  data %>% 
+    filter(country==data_filtered$country & unitID %in% controlled & class_Accreditation!="Not Accredited" & class_Control==data_filtered$class_Control) %>%
+    select(unitID, cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000) -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5))-> indicator1
+  title_indicator1 <- paste0("Indicator #1 in  ", paste0(data_filtered$class_Control), " Accredited Universities in ", data_filtered$country)
+  
+  
+#accredited, country
+      } else if (data_filtered$accred!="Not Accredited" & nrow(filter(country_table_accredited,country_table_accredited$country==data_filtered$country&country_table_accredited$n>=6))== 3) {
+  data %>% 
+    filter(country==data_filtered$country & unitID %in% controlled & class_Accreditation!="Not Accredited") %>%
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000) -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5))-> indicator1
+  title_indicator1 <- paste0("Indicator #1 in  Accredited Universities in ", data_filtered$country)
+  
+#accredited, control, subregion
+      } else if (data_filtered$accred!="Not Accredited" & nrow(filter(sub_table_accredited_control,sub_table_accredited_control$Sub_region==data_filtered$Sub_region&sub_table_accredited_control$class_Control==data_filtered$class_Control&sub_table_accredited_control$n>=6))== 3) {
+ data %>% 
+    filter(Sub_region==data_filtered$Sub_region & unitID %in% controlled & class_Accreditation!="Not Accredited" & class_Control==data_filtered$class_Control) %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000) -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) -> indicator1
+    title_indicator1 <-  paste0("Indicator #1 in  ", paste0(data_filtered$class_Control), " Accredited Universities in ", data_filtered$Sub_region)
+    
+#accredited, subregion
+      } else if (data_filtered$accred!="Not Accredited" & nrow(filter(sub_table_accredited,sub_table_accredited$Sub_region==data_filtered$Sub_region&sub_table_accredited$n>=6))== 3) {
+ data %>% 
+    filter(Sub_region==data_filtered$Sub_region & unitID %in% controlled & class_Accreditation!="Not Accredited") %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000) -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) -> indicator1
+    title_indicator1 <-  paste0("Indicator #1 in  Accredited Universities in ", data_filtered$Sub_region)
+    
+#accredited,control,mega region
+    } else if (data_filtered$accred!="Not Accredited" & nrow(filter(mega_table_accredited_control,mega_table_accredited_control$Mega_region==data_filtered$Mega_region&mega_table_accredited_control$class_Control==data_filtered$class_Control&mega_table_accredited_control$n>=6))== 3) {
+  data %>% 
+    filter(Mega_region==data_filtered$Mega_region & unitID %in% controlled & class_Accreditation!="Not Accredited" &class_Control == data_filtered$class_Control) %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000) -> data
+  data %>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+    scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) ->  indicator1
+  title_indicator1 <- paste0("Indicator #1 in  ", paste0(data_filtered$class_Control), " Accredited Universities in ", data_filtered$Mega_region)
+  
+#accredited,mega region
+    } else if (data_filtered$accred!="Not Accredited" & nrow(filter(mega_table_accredited,mega_table_accredited$Mega_region==data_filtered$Mega_region&mega_table_accredited$n>=6))== 3) {
+  data %>% 
+    filter(Mega_region==data_filtered$Mega_region & unitID %in% controlled & class_Accreditation!="Not Accredited") %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000) -> data
+  data %>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+    scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) ->  indicator1
+  title_indicator1 <- paste0("Indicator #1 in  Accredited Universities in ", data_filtered$Mega_region)
+  
+#accredited, control
+  } else if(data_filtered$accred!="Not Accredited" & nrow(filter(all_accredited_control,all_accredited_control$class_Control==data_filtered$class_Control&all_accredited_control$n>=6))== 3) {
+data %>% 
+  filter(class_Accreditation!="Not Accredited" & unitID %in% controlled & class_Control==data_filtered$class_Control) %>% 
+  select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+  mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5))-> indicator1
+   title_indicator1 <-   paste0("Indicator #1 in  all ", paste0(data_filtered$class_Control), " Accredited Universities")
+   
+#accredited
+  } else if(data_filtered$accred!="Not Accredited" & nrow(filter(all_accredited_control,all_accredited_control$n>=6))== 3) {
+data %>% 
+  filter(class_Accreditation!="Not Accredited" & unitID %in% controlled) %>% 
+  select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+  mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5))-> indicator1
+   title_indicator1 <-   "Indicator #1 in  all Accredited Universities"
+   
+#control, country
+  } else if (nrow(filter(country_table_control,country_table_control$country==data_filtered$country&country_table_control$class_Control==data_filtered$class_Control&country_table_control$n>=6))== 3) {
+  data %>% 
+    filter(country==data_filtered$country & unitID %in% controlled & class_Control==data_filtered$class_Control) %>%
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5))-> indicator1
+  title_indicator1 <- paste0("Indicator #1 in  ", paste0(data_filtered$class_Control), " Universities in ", data_filtered$country)
+  
+  
+#country
+  } else if (nrow(filter(country_table,country_table$country==data_filtered$country&country_table$n>=6))== 3) {
+  data %>% 
+    filter(country==data_filtered$country & unitID %in% controlled) %>%
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5))-> indicator1
+  title_indicator1 <- paste0("Indicator #1 in  ", data_filtered$country)
+  
+  
+#control, subregion
+    } else if (nrow(filter(sub_table_control,sub_table_control$Sub_region==data_filtered$Sub_region&sub_table_control$n>=6 & sub_table_control$class_Control == data_filtered$class_Control))== 3) {
+ data %>% 
+    filter(Sub_region==data_filtered$Sub_region & unitID %in% controlled &class_Control ==data_filtered$class_Control) %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) -> indicator1
+    title_indicator1 <-  paste0("Indicator #1 in  ", paste0(data_filtered$class_Control), " Universities in ", data_filtered$Sub_region)
+    
+#subregion
+    } else if (nrow(filter(sub_table,sub_table$Sub_region==data_filtered$Sub_region&sub_table$n>=6))== 3) {
+ data %>% 
+    filter(Sub_region==data_filtered$Sub_region & unitID %in% controlled) %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+  scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) -> indicator1
+    title_indicator1 <-  paste0("Indicator #1 in  ", data_filtered$Sub_region)
+    
+#control, mega region
+    } else if (nrow(filter(mega_table_control,mega_table_control$Mega_region==data_filtered$Mega_region&mega_table_control$n>=6& mega_table_control$class_Control==data_filtered$class_Control))== 3) {
+  data %>% 
+    filter(Mega_region==data_filtered$Mega_region & unitID %in% controlled & class_Control==data_filtered$class_Control) %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+    scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) ->  indicator1
+  title_indicator1 <- paste0("Indicator #1 in  ", paste0(data_filtered$class_Control), " Universities in ", data_filtered$Mega_region)
+  
+#mega region
+    } else if (nrow(filter(mega_table,mega_table$Mega_region==data_filtered$Mega_region&mega_table$n>=6))== 3) {
+  data %>% 
+    filter(Mega_region==data_filtered$Mega_region & unitID %in% controlled) %>% 
+    select(unitID,cycleID,BSCU02,BSE1a8t) %>% 
+    mutate(BFTEindicator1=BSCU02/BSE1a8t) -> sample
+  sample%>%
+  group_by(cycleID) %>% 
+  summarise(mean=mean(BFTEindicator1, na.rm=TRUE)/1000)  -> data
+  data%>%  
+  ggplot(., aes(x=cycleID, y=mean, label=round(mean, 2)))+
+  geom_line()+ geom_text(vjust = 0, nudge_y = 0.5)+ 
+    geom_point()+ theme_corporate()+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample$unitID)))+
+    scale_x_continuous(breaks = c(2016, 2017, 2018), labels=c("2016-2017", "2017-2018", "2018-2019"),limits=c(2015.9, 2018.2))+
+    scale_y_continuous(name="Measurement #1", limits=c(0,max(data$mean)+5)) ->  indicator1
+  title_indicator1 <- paste0("Indicator #1 in  ", data_filtered$Mega_region)
+  } else {
+  cat("Error/n")
+}
+
+#accredited, control, country
+if (data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$country==data_filtered$country&e1$class_Accreditation!="Not Accredited"&e1$class_Control==data_filtered$class_Control))>=6) {
+  e1 %>% 
+    filter(country==data_filtered$country & class_Accreditation!="Not Accredited"  & class_Control==data_filtered$class_Control) %>%
+    select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ", paste0(data_filtered$class_Control), " Accredited Universities in ",data_filtered$country)
+
+#accredited, country
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$country==data_filtered$country&e1$class_Accreditation!="Not Accredited"))>=6) {
+  e1 %>% 
+    filter(country==data_filtered$country & class_Accreditation!="Not Accredited") %>%
+    select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in Accredited Universities in ",data_filtered$country)
+
+#accredited, control, subregion
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$Sub_region==data_filtered$Sub_region&e1$class_Accreditation!="Not Accredited"&e1$class_Control==data_filtered$class_Control))>=6) {
+ e1 %>% 
+    filter(Sub_region==data_filtered$Sub_region & class_Accreditation!="Not Accredited" & class_Control==data_filtered$class_Control) %>% 
+    select(A=BSE1a4m,A=BSE1a4f, unitID) %>% 
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ", paste0(data_filtered$class_Control), " Accredited Universities in ",data_filtered$Sub_region)
+
+#accredited, subregion  
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$Sub_region==data_filtered$Sub_region&e1$class_Accreditation!="Not Accredited"))>=6) {
+ e1 %>% 
+    filter(Sub_region==data_filtered$Sub_region & class_Accreditation!="Not Accredited") %>% 
+    select(A=BSE1a4m,B=BSE1a4f, unitID) %>% 
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in Accredited Universities in ",data_filtered$Sub_region)
+  
+#accredited, control, mega region    
+  } else if (data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$Mega_region==data_filtered$Mega_region&e1$class_Accreditation!="Not Accredited"&e1$class_Control==data_filtered$class_Control))>=6) {
+  e1 %>% 
+  filter(Mega_region==data_filtered$Mega_region & class_Accreditation!="Not Accredited"& class_Control==data_filtered$class_Control) %>% 
+  select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ", paste0(data_filtered$class_Control), " Accredited Universities in ",data_filtered$Mega_region)
+
+#accredited, mega region    
+  } else if (data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$Mega_region==data_filtered$Mega_region&e1$class_Accreditation!="Not Accredited"))>=6) {
+  e1 %>% 
+  filter(Mega_region==data_filtered$Mega_region & class_Accreditation!="Not Accredited") %>% 
+  select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in Accredited Universities in ",data_filtered$Mega_region)
+  
+#accredited, control  
+  } else if(data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$class_Control==data_filtered$class_Control & e1$class_Accreditation!="Not Accredited"))>=6) {
+e1 %>% 
+  filter(class_Accreditation!="Not Accredited"& class_Control==data_filtered$class_Control) %>% 
+  select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <-  paste0("Indicator #3 in all ", paste0(data_filtered$class_Control), " Accredited Universities")
+  
+#accredited
+} else if(data_filtered$accred!="Not Accredited" & nrow(filter(e1,e1$class_Accreditation!="Not Accredited"))>=6) {
+e1 %>% 
+  filter(class_Accreditation!="Not Accredited") %>% 
+  select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <-  "Indicator #3 in all Accredited Universities"
+
+#control, country  
+  } else if (nrow(filter(e1,e1$country==data_filtered$country&e1$class_Control==data_filtered$class_Control))>=6) {
+  e1 %>% 
+    filter(country==data_filtered$country& class_Control==data_filtered$class_Control) %>%
+    select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ", paste0(data_filtered$class_Control), " Universities in " ,data_filtered$country)
+
+#country  
+  } else if (nrow(filter(e1,e1$country==data_filtered$country))>=6) {
+  e1 %>% 
+    filter(country==data_filtered$country) %>%
+    select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ",data_filtered$country)
+  
+#control, subregion  
+ } else if (nrow(filter(e1,e1$Sub_region==data_filtered$Sub_region&e1$class_Control==data_filtered$class_Control))>=6) {
+ e1 %>% 
+    filter(Sub_region==data_filtered$Sub_region& class_Control==data_filtered$class_Control) %>% 
+    select(A=BSE1a4m,B=BSE1a4f, unitID) %>% 
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ", paste0(data_filtered$class_Control), " Universities in " ,data_filtered$Sub_region)
+  
+#subregion
+} else if (nrow(filter(e1,e1$Sub_region==data_filtered$Sub_region))>=6) {
+ e1 %>% 
+    filter(Sub_region==data_filtered$Sub_region) %>% 
+    select(A=BSE1a4m,B=BSE1a4f, unitID) %>% 
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ",data_filtered$Sub_region)
+
+#control, mega region  
+ } else if (nrow(filter(e1,e1$Mega_region==data_filtered$Mega_region&e1$class_Control==data_filtered$class_Control))>=6) {
+  e1 %>% 
+  filter(Mega_region==data_filtered$Mega_region& class_Control==data_filtered$class_Control) %>% 
+  select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ", paste0(data_filtered$class_Control), " Universities in " ,data_filtered$Mega_region)
+
+#mega region  
+ } else if (nrow(filter(e1,e1$Mega_region==data_filtered$Mega_region))>=6) {
+  e1 %>% 
+  filter(Mega_region==data_filtered$Mega_region) %>% 
+  select(A=BSE1a4m,B=BSE1a4f, unitID) %>%
+  gather(key="indicator3", value="Measurement", -unitID) -> sample_e1
+  sample_e1%>% 
+  group_by(indicator3) %>% 
+  summarise(Measurement=mean(Measurement, na.rm=TRUE)) %>% 
+  ggplot(., aes(x=indicator3, y=Measurement)) +
+  geom_bar(stat="identity", width=0.5, fill=corporate_colors[2])+
+    labs(caption= paste0("Source: Fake Data. N=", n_distinct(sample_e1$unitID)))+
+    geom_text(aes(label=round(Measurement, 2)), position=position_dodge(width=0.9), vjust=-0.25)+
+    theme_corporate()  -> indicator3
+  title_indicator3 <- paste0("Indicator #3 in ",data_filtered$Mega_region)
+  } else {
+  cat("Error/n")
+}
+
+
+#accreditation, control, country
+if (data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$country==data_filtered$country&b1$class_Accreditation!="Not Accredited"&b1$class_Control==data_filtered$class_Control))>=6) {
+  b1 %>% 
+    filter(country==data_filtered$country & class_Accreditation!="Not Accredited"& class_Control==data_filtered$class_Control) %>%
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+  title_emphasis <- paste0("Indicator #2 of ", paste0(data_filtered$class_Control), " Accredited Universities in ",data_filtered$country, " (N=",n_distinct(sample_b1$unitid),")")
+  
+#accreditation, country  
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$country==data_filtered$country&b1$class_Accreditation!="Not Accredited"))>=6) {
+  b1 %>% 
+    filter(country==data_filtered$country & class_Accreditation!="Not Accredited") %>%
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+  title_emphasis <- paste0("Indicator #2 of Accredited Universities in ",data_filtered$country, " (N=",n_distinct(sample_b1$unitid),")")
+
+#accredited, control, subregion  
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$Sub_region==data_filtered$Sub_region&b1$class_Accreditation!="Not Accredited"&b1$class_Control==data_filtered$class_Control))>=6) {
+ b1 %>% 
+    filter(Sub_region==data_filtered$Sub_region & class_Accreditation!="Not Accredited"& class_Control==data_filtered$class_Control) %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+  title_emphasis <- paste0("Indicator #2 of ", paste0(data_filtered$class_Control), " Accredited Universities in ",data_filtered$Sub_region, " (N=",n_distinct(sample_b1$unitid),")")
+
+#accredited, subregion        
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$Sub_region==data_filtered$Sub_region&b1$class_Accreditation!="Not Accredited"))>=6) {
+ b1 %>% 
+    filter(Sub_region==data_filtered$Sub_region & class_Accreditation!="Not Accredited") %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+  title_emphasis <- paste0("Indicator #2 of Accredited Universities in ",data_filtered$Sub_region, " (N=",n_distinct(sample_b1$unitid),")")
+
+#accreditat, control, mega region  
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$Mega_region==data_filtered$Mega_region&b1$class_Accreditation!="Not Accredited"&b1$class_Control==data_filtered$class_Control))>=6) {
+  b1 %>% 
+    filter(Mega_region==data_filtered$Mega_region & class_Accreditation!="Not Accredited"& class_Control==data_filtered$class_Control) %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2)) -> table
+ title_emphasis <- paste0("Indicator #2 of ", paste0(data_filtered$class_Control), " Accredited Universities in ",data_filtered$Mega_region, " (N=",n_distinct(sample_b1$unitid),")") 
+ 
+#accreditation, mega region   
+} else if (data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$Mega_region==data_filtered$Mega_region&b1$class_Accreditation!="Not Accredited"))>=6) {
+  b1 %>% 
+    filter(Mega_region==data_filtered$Mega_region & class_Accreditation!="Not Accredited") %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2)) -> table
+ title_emphasis <- paste0("Indicator #2 of Accredited Universities in ",data_filtered$Mega_region, " (N=",n_distinct(sample_b1$unitid),")")
+ 
+#accreditation, control 
+} else if(data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$class_Accreditation!="Not Accredited"&b1$class_Control==data_filtered$class_Control))>=6) {
+b1 %>% 
+  filter(class_Accreditation!="Not Accredited"& class_Control==data_filtered$class_Control) %>% 
+  select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2)) -> table
+title_emphasis <- paste0("Indicator #2 of all ", paste0(data_filtered$class_Control), "Accredited Universities", " (N=",n_distinct(sample_b1$unitid),")")
+
+#accreditation
+} else if(data_filtered$accred!="Not Accredited" & nrow(filter(b1,b1$class_Accreditation!="Not Accredited"))>=6) {
+b1 %>% 
+  filter(class_Accreditation!="Not Accredited") %>% 
+  select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2)) -> table
+title_emphasis <- paste0("Indicator #2 of all Accredited Universities (N=",n_distinct(sample_b1$unitid),")")
+
+#control, country
+} else if (nrow(filter(b1,b1$country==data_filtered$country&b1$class_Control==data_filtered$class_Control))>=6) {
+  b1 %>% 
+    filter(country==data_filtered$country& class_Control==data_filtered$class_Control) %>%
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+ title_emphasis <- paste0("Indicator #2 of ", paste0(data_filtered$class_Control), " Universities in ",data_filtered$country, " (N=",n_distinct(sample_b1$unitid),")")
+ 
+#country
+} else if (nrow(filter(b1,b1$country==data_filtered$country))>=6) {
+  b1 %>% 
+    filter(country==data_filtered$country) %>%
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+ title_emphasis <- paste0("Indicator #2 of Universities in ",data_filtered$country, " (N=",n_distinct(sample_b1$unitid),")")   
+
+#control, subregion
+} else if (nrow(filter(b1,b1$Sub_region==data_filtered$Sub_region&b1$class_Control==data_filtered$class_Control))>=6) {
+ b1 %>% 
+    filter(Sub_region==data_filtered$Sub_region& class_Control==data_filtered$class_Control) %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+   title_emphasis <- paste0("Indicator #2 of ", paste0(data_filtered$class_Control), " Universities in ",data_filtered$Sub_region, " (N=",n_distinct(sample_b1$unitid),")")  
+   
+#subregion   
+} else if (nrow(filter(b1,b1$Sub_region==data_filtered$Sub_region))>=6) {
+ b1 %>% 
+    filter(Sub_region==data_filtered$Sub_region) %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2))-> table
+   title_emphasis <- paste0("Indicator #2 of Universities in ",data_filtered$Sub_region, " (N=",n_distinct(sample_b1$unitid),")")  
+   
+#control, mega region   
+} else if (nrow(filter(b1,b1$Mega_region==data_filtered$Mega_region&b1$class_Control==data_filtered$class_Control))>=6) {
+  b1 %>% 
+    filter(Mega_region==data_filtered$Mega_region& class_Control==data_filtered$class_Control) %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2)) -> table
+   title_emphasis <- paste0("Indicator #2 of ", paste0(data_filtered$class_Control), " Universities in ",data_filtered$Mega_region, " (N=",n_distinct(sample_b1$unitid),")") 
+   
+#mega region   
+} else if (nrow(filter(b1,b1$Mega_region==data_filtered$Mega_region))>=6) {
+  b1 %>% 
+    filter(Mega_region==data_filtered$Mega_region) %>% 
+    select(BSB02T, BSB02IC, BSB02S, unitid) %>% 
+  gather(key="key", value="Emphasis", -unitid) -> sample_b1
+  sample_b1%>% 
+  group_by(key, Emphasis) %>% 
+  summarise(Measurement=n()) %>% 
+  mutate('Frequency, %'=round(Measurement/sum(Measurement)*100,2)) -> table
+   title_emphasis <- paste0("Indicator #2 of Universities in ",data_filtered$Mega_region, " (N=",n_distinct(sample_b1$unitid),")") 
+   
+   
+} else {
+  cat("Error/n")
+}
+```
+
+
+## Context
+
+Slide for instructions and additional information
+
+
+## `r title_indicator1` 
+
+```{r, echo=FALSE, warning=FALSE,out.height=300,out.width=400,dpi=300}
+indicator1
+```
+
+::: notes
+
+- more notes 
+
+:::
+
+## `r title_emphasis`
+
+```{r, echo=FALSE, warning=FALSE,dpi=300}
+table$key <- recode(table$key, BSB02IC = "Category A", BSB02S = "Category B", BSB02T = "Category C")
+table$n <- paste0(table$Measurement, " (", table$`Frequency, %`,"%)")
+table <- table %>% select(-`Frequency, %`, -Measurement) %>% spread(., key=Emphasis, value = n)
+names(table)[1]=""
+table %>% 
+  knitr::kable()
+```
+
+
+
+## `r title_indicator3`
+
+```{r, echo=FALSE, warning=FALSE, out.height=300,out.width=400,dpi=300}
+indicator3
+```
+
+::: notes
+
+- these are the notes
+- `r 2+2`
+
+:::
